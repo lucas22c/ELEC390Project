@@ -1,53 +1,48 @@
-import pandas as pd
-import numpy as np
 import h5py
+import pandas as pd
+from sklearn.model_selection import train_test_split
 
-firstMemberWalking = pd.read_csv('HaydenMurphyWalkingData.csv')
 
-firstMemberJumping = pd.read_csv('HaydenMurphyJumpingData.csv')
+def segment_data(data, window_size, overlap):
+    segments = []
+    for i in range(0, len(data) - window_size, overlap):
+        segments.append(data[i:i + window_size])
+    return segments
 
-secondMemberWalking = pd.read_csv('JacobHicklingWalkingData.csv')
 
-secondMemberJumping = pd.read_csv('JacobHicklingJumpingData.csv')
+HaydenWalking = pd.read_csv('HaydenMurphyWalkingData.csv')
+HaydenJumping = pd.read_csv('HaydenMurphyJumpingData.csv')
+JacobWalking = pd.read_csv('JacobHicklingWalkingData.csv')
+JacobJumping = pd.read_csv('JacobHicklingJumpingData.csv')
+LucasWalking = pd.read_csv('LucasCosterWalkingData.csv')
+LucasJumping = pd.read_csv('LucasCosterJumpingData.csv')
 
-thirdMemberWalking = pd.read_csv('LucasCosterWalkingData.csv')
+window_size = 5 * 100
+overlap = window_size // 2
 
-thirdMemberJumping = pd.read_csv('LucasCosterJumpingData.csv')
-
-walkingJoined = pd.concat([firstMemberWalking, secondMemberWalking, thirdMemberWalking], ignore_index=True)
-jumpingJoined = pd.concat([firstMemberJumping, secondMemberJumping, thirdMemberJumping], ignore_index=True)
-allJoined = pd.concat([walkingJoined, jumpingJoined], ignore_index=True)
+HaydenWalkingSegments = segment_data(HaydenWalking.values, window_size, overlap)
+HaydenJumpingSegments = segment_data(HaydenJumping.values, window_size, overlap)
+JacobWalkingSegments = segment_data(JacobWalking.values, window_size, overlap)
+JacobJumpingSegments = segment_data(JacobJumping.values, window_size, overlap)
+LucasWalkingSegments = segment_data(LucasWalking.values, window_size, overlap)
+LucasJumpingSegments = segment_data(LucasJumping.values, window_size, overlap)
 
 with h5py.File('./project_data.h5', 'w') as hdf:
-    Hayden = hdf.create_group('Hayden Murphy')
-    Hayden.create_dataset('walking', data=firstMemberWalking)
-    Hayden.create_dataset('jumping', data=firstMemberJumping)
+    for name, walkingsegment, jumpingsegment in [('Hayden', HaydenWalkingSegments, HaydenJumpingSegments),
+                                                 ('Jacob', JacobWalkingSegments, JacobJumpingSegments),
+                                                 ('Lucas', LucasWalkingSegments, LucasJumpingSegments)]:
+        person_group = hdf.create_group(name)
+        person_group.create_dataset('walking', data=walkingsegment)
+        person_group.create_dataset('jumping', data=jumpingsegment)
 
-    Jacob = hdf.create_group('Jacob Hickling')
-    Jacob.create_dataset('walking', data=secondMemberWalking)
-    Jacob.create_dataset('jumping', data=secondMemberJumping)
+        walkingtrain, walkingtest = train_test_split(walkingsegment, test_size=0.1, random_state=42)
+        jumpingtrain, jumpingtest = train_test_split(jumpingsegment, test_size=0.1, random_state=42)
 
-    Lucas = hdf.create_group('Lucas Coster')
-    Lucas.create_dataset('walking', data=thirdMemberWalking)
-    Lucas.create_dataset('jumping', data=thirdMemberJumping)
+        traingroup = hdf.create_group(f'{name}/Train')
+        traingroup.create_dataset('walking', data=walkingtrain)
+        traingroup.create_dataset('jumping', data=jumpingtrain)
 
-    dataset_group = hdf.create_group('dataset')
-
-    num_segments = (len(allJoined) - 500) // 100 + 1
-    segments = [allJoined[(i * 100):(i * 100 + 500)] for i in range(num_segments)]
-
-    np.random.shuffle(segments)
-
-    nTrain = int(0.9 * len(segments))
-    train_segments = segments[:nTrain]
-    test_segments = segments[nTrain:]
-
-    test_group = hdf.create_group('Test')
-    train_group = hdf.create_group('Train')
-
-    test_group.create_dataset('test', data=test_segments)
-    train_group.create_dataset('train', data=train_segments)
-
-with h5py.File('./project_data.h5', 'r') as hdf:
-    ls = list(hdf.keys())
-    print(ls)
+        testgroup = hdf.create_group(f'{name}/Test')
+        testgroup.create_dataset('walking', data=walkingtest)
+        testgroup.create_dataset('jumping', data=jumpingtest)
+    hdf.close()
