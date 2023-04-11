@@ -1,4 +1,5 @@
 import h5py
+import numpy as np
 import pandas as pd
 from sklearn.model_selection import train_test_split
 
@@ -10,24 +11,25 @@ def segment_data(data, window_size, overlap):
     return segments
 
 
-HaydenWalking = pd.read_csv('HaydenMurphyWalkingData.csv')
-HaydenJumping = pd.read_csv('HaydenMurphyJumpingData.csv')
-JacobWalking = pd.read_csv('JacobHicklingWalkingData.csv')
-JacobJumping = pd.read_csv('JacobHicklingJumpingData.csv')
-LucasWalking = pd.read_csv('LucasCosterWalkingData.csv')
-LucasJumping = pd.read_csv('LucasCosterJumpingData.csv')
+HaydenWalking = pd.read_csv('HaydenMurphyWalkingData.csv').to_numpy()
+HaydenJumping = pd.read_csv('HaydenMurphyJumpingData.csv').to_numpy()
+JacobWalking = pd.read_csv('JacobHicklingWalkingData.csv').to_numpy()
+JacobJumping = pd.read_csv('JacobHicklingJumpingData.csv').to_numpy()
+LucasWalking = np.genfromtxt('LucasCosterWalkingData.csv', delimiter=';')
+LucasJumping = np.genfromtxt('LucasCosterJumpingData.csv', delimiter=';')
 
 window_size = 5 * 100
 overlap = window_size // 2
 
-HaydenWalkingSegments = segment_data(HaydenWalking.values, window_size, overlap)
-HaydenJumpingSegments = segment_data(HaydenJumping.values, window_size, overlap)
-JacobWalkingSegments = segment_data(JacobWalking.values, window_size, overlap)
-JacobJumpingSegments = segment_data(JacobJumping.values, window_size, overlap)
-LucasWalkingSegments = segment_data(LucasWalking.values, window_size, overlap)
-LucasJumpingSegments = segment_data(LucasJumping.values, window_size, overlap)
+HaydenWalkingSegments = segment_data(HaydenWalking, window_size, overlap)
+HaydenJumpingSegments = segment_data(HaydenJumping, window_size, overlap)
+JacobWalkingSegments = segment_data(JacobWalking, window_size, overlap)
+JacobJumpingSegments = segment_data(JacobJumping, window_size, overlap)
+LucasWalkingSegments = segment_data(LucasWalking, window_size, overlap)
+LucasJumpingSegments = segment_data(LucasJumping, window_size, overlap)
 
 with h5py.File('./project_data.h5', 'w') as hdf:
+
     for name, walkingsegment, jumpingsegment in [('Hayden', HaydenWalkingSegments, HaydenJumpingSegments),
                                                  ('Jacob', JacobWalkingSegments, JacobJumpingSegments),
                                                  ('Lucas', LucasWalkingSegments, LucasJumpingSegments)]:
@@ -35,14 +37,18 @@ with h5py.File('./project_data.h5', 'w') as hdf:
         person_group.create_dataset('walking', data=walkingsegment)
         person_group.create_dataset('jumping', data=jumpingsegment)
 
-        walkingtrain, walkingtest = train_test_split(walkingsegment, test_size=0.1, random_state=42)
-        jumpingtrain, jumpingtest = train_test_split(jumpingsegment, test_size=0.1, random_state=42)
+    walkingsegment = np.concatenate([HaydenWalkingSegments, JacobWalkingSegments, LucasWalkingSegments])
+    jumpingsegment = np.concatenate([HaydenJumpingSegments, JacobJumpingSegments, LucasJumpingSegments])
 
-        traingroup = hdf.create_group(f'{name}/Train')
-        traingroup.create_dataset('walking', data=walkingtrain)
-        traingroup.create_dataset('jumping', data=jumpingtrain)
+    walkingtrain, walkingtest = train_test_split(walkingsegment, test_size=0.1, random_state=42)
+    jumpingtrain, jumpingtest = train_test_split(jumpingsegment, test_size=0.1, random_state=42)
 
-        testgroup = hdf.create_group(f'{name}/Test')
-        testgroup.create_dataset('walking', data=walkingtest)
-        testgroup.create_dataset('jumping', data=jumpingtest)
+    train = hdf.create_group('Dataset/Train')
+    train.create_dataset('walking', data=walkingtrain)
+    train.create_dataset('jumping', data=jumpingtrain)
+
+    test = hdf.create_group('Dataset/Test')
+    test.create_dataset('walking', data=walkingtest)
+    test.create_dataset('jumping', data=jumpingtest)
+
     hdf.close()
