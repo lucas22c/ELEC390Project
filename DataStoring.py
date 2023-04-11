@@ -18,6 +18,17 @@ walkingJoined = pd.concat([firstMemberWalking, secondMemberWalking, thirdMemberW
 jumpingJoined = pd.concat([firstMemberJumping, secondMemberJumping, thirdMemberJumping], ignore_index=True)
 allJoined = pd.concat([walkingJoined, jumpingJoined], ignore_index=True)
 
+firstMemberWalking = firstMemberWalking.to_numpy()
+secondMemberWalking = secondMemberWalking.to_numpy()
+thirdMemberWalking = thirdMemberWalking.to_numpy()
+
+firstMemberJumping = firstMemberJumping.to_numpy()
+secondMemberJumping = secondMemberJumping.to_numpy()
+thirdMemberJumping = thirdMemberJumping.to_numpy()
+walkingJoined = walkingJoined.to_numpy()
+jumpingJoined = jumpingJoined.to_numpy()
+allJoined = allJoined.to_numpy()
+
 with h5py.File('./project_data.h5', 'w') as hdf:
     Hayden = hdf.create_group('Hayden Murphy')
     Hayden.create_dataset('walking', data=firstMemberWalking)
@@ -42,11 +53,8 @@ with h5py.File('./project_data.h5', 'w') as hdf:
     train_segments = segments[:nTrain]
     test_segments = segments[nTrain:]
 
-    test_group = hdf.create_group('Test')
-    train_group = hdf.create_group('Train')
-
-    test_group.create_dataset('test', data=test_segments)
-    train_group.create_dataset('train', data=train_segments)
+    dataset_group.create_dataset('test', data=test_segments)
+    dataset_group.create_dataset('train', data=train_segments)
 
 with h5py.File('./project_data.h5', 'r') as hdf:
     ls = list(hdf.keys())
