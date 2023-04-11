@@ -30,9 +30,9 @@ LucasJumpingSegments = segment_data(LucasJumping, window_size, overlap)
 
 with h5py.File('./project_data.h5', 'w') as hdf:
 
-    for name, walkingsegment, jumpingsegment in [('Hayden', HaydenWalkingSegments, HaydenJumpingSegments),
-                                                 ('Jacob', JacobWalkingSegments, JacobJumpingSegments),
-                                                 ('Lucas', LucasWalkingSegments, LucasJumpingSegments)]:
+    for name, walkingsegment, jumpingsegment in [('Hayden', HaydenWalking, HaydenJumping),
+                                                 ('Jacob', JacobWalking, JacobJumping),
+                                                 ('Lucas', LucasWalking, LucasJumping)]:
         person_group = hdf.create_group(name)
         person_group.create_dataset('walking', data=walkingsegment)
         person_group.create_dataset('jumping', data=jumpingsegment)
