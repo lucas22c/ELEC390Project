@@ -8,25 +8,6 @@ from scipy.fft import fft
 from sklearn.model_selection import train_test_split
 window = 5
 
-def features(segment):
-    feature = np.zeros(10)
-    # creates dictionary of features for a segment
-    feature = [
-        np.max(segment),
-        np.min(segment),
-        np.max(segment) - np.min(segment),
-        np.mean(segment),
-        np.median(segment),
-        np.var(segment),
-        skew(segment),
-        np.std(segment),
-        kurtosis(segment),
-        fft(segment)
-    ]
-
-    return feature
-
-
 with h5py.File('./project_data.h5', 'r') as hdf:
     walk_train = hdf['Dataset/Train/Walking'][:, :, 1:] # drop time, as it is doesn't matter
     jump_train = hdf['Dataset/Train/Jumping'][:, :, 1:]
@@ -104,10 +85,10 @@ label_column = np.hstack(
    # axis=1  # stack vertically
 )
 
-print(np.rot90(label_column).shape)
-print(walk_features.shape)
+#print(np.rot90(label_column).shape)
 
 walk_features = np.hstack((walk_features, np.rot90(label_column)))
+print("walk features: " + str(walk_features.shape))
 
 # ---------------------------------------
 # JUMPING TRAIN
@@ -166,6 +147,7 @@ label_column = np.hstack(
 )
 
 jump_features = np.hstack((jump_features, np.rot90(label_column)))
+print("jump features: " + str(jump_features.shape))
 
 # ---------------------------------------
 # WALKING TEST
@@ -256,6 +238,42 @@ jump_test_features = np.hstack((jump_test_features, np.rot90(label_column)))
 
 # FEATURES DONE!!!
 
-# normalize!!
-scaler = StandardScaler()
-# do normalization
+#jump_features = np.concatenate((jump_features, np.zeros((jump_features.shape[0], 1)) ))
+#walk_features = np.concatenate((walk_features, np.ones((walk_features.shape[0], 1)) ))
+#jump_test_features = np.concatenate((jump_test_features, np.zeros((jump_test_features.shape[0], 1)) ))
+#walk_test_features = np.concatenate((walk_test_features, np.ones((walk_test_features.shape[0], 1)) ))
+
+#b = np.zeros((jump_features.shape[0], 11))
+#b[:, :-1] = jump_features
+#jump_features = b
+
+#b = np.zeros((jump_features.shape[0], 11))
+#b[:, :-1] = jump_test_features
+#jump_test_features = b
+
+#b = np.ones((walk_features.shape[0], 11))
+#b[:, :-1] = walk_features
+#walk_features = b
+
+#b = np.ones((walk_test_features.shape[0], 11))
+#b[:, :-1] = walk_test_features
+#walk_test_features = b
+
+column_names = np.array(["max", "min", "range", "mean", "median", "var", "skew", "std", "kurtosis", "rms", "measurement", "activity"])
+
+train_features = np.concatenate((walk_features, jump_features))
+train_labels = np.concatenate((np.zeros((walk_features.shape[0], 1)), np.ones((jump_features.shape[0], 1))))
+training = pd.DataFrame(np.hstack((train_features, train_labels)), columns=column_names)
+
+test_features = np.concatenate((walk_test_features, jump_test_features))
+test_labels = np.concatenate((np.zeros((walk_test_features.shape[0], 1)), np.ones((jump_test_features.shape[0], 1))))
+testing = pd.DataFrame(np.hstack((test_features, test_labels)), columns=column_names)
+
+print("train shape " + str(training.shape))
+print(training.iloc[:, -1])
+
+#all_features = pd.DataFrame(, columns=column_names)
+#print("train features: " + str(all_features.shape))
+#all_test_features = pd.DataFrame(np.concatenate((walk_test_features, jump_test_features)), columns=column_names)
+#print("test features: " + str(all_test_features.shape))
+
