@@ -14,7 +14,7 @@ from sklearn.metrics import RocCurveDisplay
 from sklearn.metrics import ConfusionMatrixDisplay
 from sklearn.linear_model import LogisticRegression
 from sklearn.pipeline import make_pipeline
-from sklearn.model_selection import LearningCurveDisplay
+from sklearn.model_selection import LearningCurveDisplay, learning_curve
 import joblib
 window = 5
 
@@ -272,6 +272,7 @@ clf = make_pipeline(scaler, l_reg)
 clf.fit(X_train, y_train)
 
 LearningCurveDisplay.from_estimator(clf, X_train, y_train)
+plt.ylim(0, 1)
 plt.show()
 
 joblib.dump(clf, 'classifier.joblib')
@@ -298,3 +299,9 @@ plt.show()
 
 auc = roc_auc_score(y_test, predicted_proba[:, 1])
 print("the AUC is:", auc)
+
+TP = cm[0, 0]
+FP = cm[0, 1]
+FN = cm[1, 0]
+F1 = (2*TP)/(2*TP+FP+FN)
+print('F1 Score: ', F1)
