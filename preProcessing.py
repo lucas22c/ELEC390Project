@@ -238,27 +238,6 @@ jump_test_features = np.hstack((jump_test_features, np.rot90(label_column)))
 
 # FEATURES DONE!!!
 
-#jump_features = np.concatenate((jump_features, np.zeros((jump_features.shape[0], 1)) ))
-#walk_features = np.concatenate((walk_features, np.ones((walk_features.shape[0], 1)) ))
-#jump_test_features = np.concatenate((jump_test_features, np.zeros((jump_test_features.shape[0], 1)) ))
-#walk_test_features = np.concatenate((walk_test_features, np.ones((walk_test_features.shape[0], 1)) ))
-
-#b = np.zeros((jump_features.shape[0], 11))
-#b[:, :-1] = jump_features
-#jump_features = b
-
-#b = np.zeros((jump_features.shape[0], 11))
-#b[:, :-1] = jump_test_features
-#jump_test_features = b
-
-#b = np.ones((walk_features.shape[0], 11))
-#b[:, :-1] = walk_features
-#walk_features = b
-
-#b = np.ones((walk_test_features.shape[0], 11))
-#b[:, :-1] = walk_test_features
-#walk_test_features = b
-
 column_names = np.array(["max", "min", "range", "mean", "median", "var", "skew", "std", "kurtosis", "rms", "measurement", "activity"])
 
 train_features = np.concatenate((walk_features, jump_features))
@@ -271,9 +250,4 @@ testing = pd.DataFrame(np.hstack((test_features, test_labels)), columns=column_n
 
 print("train shape " + str(training.shape))
 print(training.iloc[:, -1])
-
-#all_features = pd.DataFrame(, columns=column_names)
-#print("train features: " + str(all_features.shape))
-#all_test_features = pd.DataFrame(np.concatenate((walk_test_features, jump_test_features)), columns=column_names)
-#print("test features: " + str(all_test_features.shape))
 
