@@ -98,9 +98,8 @@ def readCSV():
 
     y_min = plt.ylim()[0] * 0.9
 
-    print(len(prediction_results))
     for i in range(0, len(prediction_results)):
-        ax.text(2.5 + i * 5, y_min, 'walking' if prediction_results[i] == 1 else 'jumping', ha='center', va='center',
+        ax.text(2.5 + i * 5, y_min, 'walking' if prediction_results[i] == 0 else 'jumping', ha='center', va='center',
                 fontsize=9)
 
     ax.grid(axis='x')
@@ -111,7 +110,7 @@ def readCSV():
     prediction_csv['Time (s)'] = [(str(0 + i * 5) + " - " + str(5 + i * 5) + " seconds") for i in
                                   range(0, len(prediction_results))]
 
-    prediction_labels = ["walking" if i == 1 else "jumping" for i in prediction_results]
+    prediction_labels = ["walking" if i == 0 else "jumping" for i in prediction_results]
     prediction_csv["Prediction"] = prediction_labels
 
     # Save dataframe and use filedialog box to get the name and filepath from user
