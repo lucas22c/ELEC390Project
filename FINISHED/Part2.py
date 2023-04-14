@@ -39,7 +39,6 @@ LucasJumping = pd.read_csv('LucasCosterJumpingData.csv', delimiter=';')
 # all group combined and shuffle all members to remove clusters of same member
 walking = pd.concat([HaydenWalking, JacobWalking, LucasWalking], ignore_index=True)
 walking = pd.DataFrame(np.random.shuffle(walking.to_numpy()))
-
 jumping = pd.concat([HaydenJumping, JacobJumping, LucasJumping], ignore_index=True)
 jumping = pd.DataFrame(np.random.shuffle(jumping.to_numpy()))
 

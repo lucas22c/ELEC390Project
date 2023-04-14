@@ -1,29 +1,10 @@
 import h5py
-import numpy as np
-import openpyxl as openpyxl
-import pandas as pd
 import matplotlib.pyplot as plt
 import openpyxl
-from openpyxl.workbook import Workbook
 
-
-def read_data(action):
-    with h5py.File('./project_data.h5', 'r') as hdf:
-        memberWalkingData = hdf['Lucas/Walking'][:]
-        memberJumpingData = hdf['Lucas/Jumping'][:]
-
-        if action == 'walking':
-            return memberWalkingData
-        elif action == 'jumping':
-            return memberJumpingData
-        else:
-            print("Improper action")
-            exit(1)
-
-
-
-jumping_data = read_data('jumping')
-walking_data = read_data('walking')
+with h5py.File('../project_data.h5', 'r') as hdf:
+    jumping_data = hdf['Lucas/Jumping'][:]
+    walking_data = hdf['Lucas/Walking'][:]
 
 # simple acceleration vs time for walking and jumping
 
@@ -31,11 +12,11 @@ fig, ax = plt.subplots()
 
 # walking
 
-ax.plot(walking_data[:, 0], np.sqrt(walking_data[:, 1] ** 2 + walking_data[:, 2] ** 2 + walking_data[:, 3] ** 2), color = 'green', label = 'Walking')
+ax.plot(walking_data[:, 0], walking_data[:,4], color = 'green', label = 'Walking')
 
 # jumping
 
-ax.plot(jumping_data[:, 0], np.sqrt(jumping_data[:, 1] ** 2 + jumping_data[:, 2] ** 2 + jumping_data[:, 3] ** 2), color = 'orange', label = 'Jumping')
+ax.plot(jumping_data[:, 0], jumping_data[:,4], color = 'orange', label = 'Jumping')
 ax.set_title('Acceleration Magnitude vs Time')
 ax.set_ylabel('Acceleration Magnitude')
 ax.set_xlabel('Time')
@@ -82,7 +63,7 @@ plt.show()
 walking_window = walking_data[0:0+500, :]
 fig, ax = plt.subplots()
 
-ax.plot(walking_window[:, 0], np.sqrt(walking_window[:, 1] ** 2 + walking_window[:, 2] ** 2 + walking_window[:, 3] ** 2), color = 'green', label = 'Walking')
+ax.plot(walking_window[:, 0], walking_window[:, 4], color = 'green', label = 'Walking')
 ax.set_title('Walking Acceleration Magnitude vs Time For 1 Segment')
 ax.set_ylabel('Walking Acceleration Magnitude')
 ax.set_xlabel('Time')
@@ -95,7 +76,7 @@ plt.show()
 jumping_window = jumping_data[0:0+500, :]
 fig, ax = plt.subplots()
 
-ax.plot(jumping_window[:, 0], np.sqrt(jumping_window[:, 1] ** 2 + jumping_window[:, 2] ** 2 + jumping_window[:, 3] ** 2), color = 'orange', label = 'Walking')
+ax.plot(jumping_window[:, 0], jumping_window[:, 4], color = 'orange', label = 'Walking')
 ax.set_title('Jumping Acceleration Magnitude vs Time For 1 Segment')
 ax.set_ylabel('Jumping Acceleration Magnitude')
 ax.set_xlabel('Time')
