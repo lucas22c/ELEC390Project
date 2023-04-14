@@ -1,6 +1,5 @@
 import h5py
 import matplotlib.pyplot as plt
-import openpyxl
 
 with h5py.File('../project_data.h5', 'r') as hdf:
     jumping_data = hdf['Lucas/Jumping'][:]
@@ -122,9 +121,6 @@ ax.legend()
 
 plt.show()
 
-workbook = openpyxl.Workbook()
-worksheet = workbook.active
-
 data = {
     'Jacob': {
         'version': '1.1.11',
@@ -182,16 +178,14 @@ data = {
     }
 }
 
-header = ['Property', 'Jacob', 'Lucas', 'Hayden']
-worksheet.append(header)
+meta_data = pd.DataFrame(data).T
 
-for key in data['Jacob'].keys():
-    row = [key, data['Jacob'][key], data['Lucas'].get(key, ''), data['Hayden'].get(key, '')]
-    worksheet.append(row)
+meta_data = meta_data.reset_index()
+meta_data = meta_data.melt(id_vars=['index'], var_name='Property', value_name='Value')
+meta_data = meta_data.pivot(index='Property', columns='index', values='Value').reset_index()
 
-for column_cells in worksheet.columns:
-    length = max(len(str(cell.value)) for cell in column_cells)
-    worksheet.column_dimensions[column_cells[0].column_letter].width = length
+meta_data.columns.name = None
+meta_data = meta_data[['Property', 'Jacob', 'Lucas', 'Hayden']]
 
-workbook.save('metadata.xlsx')
+meta_data.to_excel('metadata.xlsx', index=False)
 
