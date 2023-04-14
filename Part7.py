@@ -9,8 +9,6 @@ from scipy.stats import skew, kurtosis, mode
 # Create GUI Frame
 window = tk.Tk()
 window.title("CSV File Reader")
-
-
 # Define a function to read the CSV file
 def readCSV():
     # Open a file dialog to select the CSV file
@@ -79,32 +77,24 @@ def readCSV():
     prediction_results = model.predict(X_data)
 
     # Graph the data
-    fig, ax = plt.subplots()
-    ax.plot(fileData.iloc[:, 0], fileData.iloc[:, 1:4])
+    walking_pred = np.count_nonzero(prediction_results)
+    jumping_pred = len(prediction_results) - walking_pred
 
-    # Visualization of the data
+    prediction = ('Walking', 'Jumping')
+    values = (walking_pred, jumping_pred)
 
-    # Set X Label
-    ax.set_xlabel("Time (s)")
+    print(prediction)
+    print(values)
 
-    # Set Y Label
-    ax.set_ylabel("Acceleration (m/s^2)")
+    fig = plt.bar(values, prediction, color='blue', width=0.4)
+    plt.xlabel = 'Prediction Options'
+    plt.ylabel = 'No. of Segments'
+    plt.title('Output Prediction Results')
 
-    # Set Title
-    ax.set_title("Acceleration vs Time")
+    plot_button = tk.Button(window, fig, text='Plot')
+    plot_button.pack()
 
-    # Set Legend
-    ax.legend(["X-acceleration", "Y-acceleration", "Z-acceleration"], loc="upper right")
-
-    y_min = plt.ylim()[0] * 0.9
-
-    for i in range(0, len(prediction_results)):
-        ax.text(2.5 + i * 5, y_min, 'walking' if prediction_results[i] == 0 else 'jumping', ha='center', va='center',
-                fontsize=9)
-
-    ax.grid(axis='x')
-    ax.set_xticks([0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60])
-
+    window.update()
     # Output CSV
     prediction_csv = pd.DataFrame(columns=["Time (s)", "Prediction"])
     prediction_csv['Time (s)'] = [(str(0 + i * 5) + " - " + str(5 + i * 5) + " seconds") for i in
@@ -120,12 +110,12 @@ def readCSV():
     # Save the dataframe
     prediction_csv.to_csv(file_path, index=False)
 
-    plt.show()
-
 
 # Create a button to open the file dialog and read the CSV file
+
 openCSVFileButton = tk.Button(window, text="Open CSV File", command=readCSV)
 openCSVFileButton.pack()
+
 
 # Create a widget to display text
 text = tk.Text(window)
@@ -133,3 +123,6 @@ text.pack()
 
 # Start GUI
 window.mainloop()
+
+
+
